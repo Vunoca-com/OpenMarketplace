@@ -19,18 +19,18 @@ jobs:
 
       - name: Create Frontend Env
         run: |
-          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > ./customer-web/.env
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > ./customer-web/.env
 
       - name: Build Image
         run: |
           docker build \
-            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/classifieds-customer:latest \
+            --build-arg NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/openmarket-customer:latest \
             ./customer-web
 
       - name: Push Image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/classifieds-customer:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/openmarket-customer:latest
 
       - name: Deploy To Server
         uses: appleboy/ssh-action@v1.0.3
@@ -40,5 +40,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            docker compose -p classifieds-customer -f /opt/classifieds/customer-compose.yml pull
-            docker compose -p classifieds-customer -f /opt/classifieds/customer-compose.yml up -d --force-recreate
+            docker compose -p openmarket-customer -f /opt/openmarket/customer-compose.yml pull
+            docker compose -p openmarket-customer -f /opt/openmarket/customer-compose.yml up -d --force-recreate
