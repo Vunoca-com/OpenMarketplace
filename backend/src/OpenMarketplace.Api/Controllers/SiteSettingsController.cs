@@ -27,6 +27,8 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
         ["footer.text"] = "String",
         ["seo.title"] = "String",
         ["seo.description"] = "Text",
+        ["localization.default_language"] = "String",
+        ["localization.show_language_selector"] = "Boolean",
         ["moderation.ai_enabled"] = "Boolean",
         ["moderation.auto_approve_safe"] = "Boolean",
         ["moderation.review_threshold"] = "String",
@@ -108,7 +110,7 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
     {
         await EnsureDefaultsAsync(ct);
         var rows = await db.AppSettings.AsNoTracking()
-            .Where(x => x.IsPublic && !x.IsDeleted && x.Key.StartsWith("site.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("social.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("contact.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("footer.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("seo."))
+            .Where(x => x.IsPublic && !x.IsDeleted && x.Key.StartsWith("site.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("social.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("contact.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("footer.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("seo.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("localization."))
             .OrderBy(x => x.Key)
             .Select(x => new { x.Key, x.Value, x.ValueType })
             .ToListAsync(ct);
@@ -122,7 +124,7 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
     {
         await EnsureDefaultsAsync(ct);
         var entities = await db.AppSettings.AsNoTracking()
-            .Where(x => !x.IsDeleted && (x.Key.StartsWith("site.") || x.Key.StartsWith("social.") || x.Key.StartsWith("contact.") || x.Key.StartsWith("footer.") || x.Key.StartsWith("seo.") || x.Key.StartsWith("moderation.") || x.Key.StartsWith("auth.") || x.Key.StartsWith("payment.") || x.Key.StartsWith("email.") || x.Key.StartsWith("sms.") || x.Key.StartsWith("template.") || x.Key.StartsWith("external.")))
+            .Where(x => !x.IsDeleted && (x.Key.StartsWith("site.") || x.Key.StartsWith("social.") || x.Key.StartsWith("contact.") || x.Key.StartsWith("footer.") || x.Key.StartsWith("seo.") || x.Key.StartsWith("moderation.") || x.Key.StartsWith("auth.") || x.Key.StartsWith("payment.") || x.Key.StartsWith("email.") || x.Key.StartsWith("sms.") || x.Key.StartsWith("template.") || x.Key.StartsWith("external.") || x.Key.StartsWith("localization.")))
             .OrderBy(x => x.Key)
             .ToListAsync(ct);
 
@@ -259,6 +261,8 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
         ("footer.text", "© OpenMarketplace. All rights reserved.", "String"),
         ("seo.title", "OpenMarketplace - Local Classifieds", "String"),
         ("seo.description", "Buy, sell and discover local listings near you.", "Text"),
+        ("localization.default_language", "en", "String"),
+        ("localization.show_language_selector", "true", "Boolean"),
         ("moderation.ai_enabled", "true", "Boolean"),
         ("moderation.auto_approve_safe", "true", "Boolean"),
         ("moderation.review_threshold", "0.45", "String"),
@@ -346,7 +350,7 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
 
     private static string NormalizeKey(string key) => (key ?? string.Empty).Trim().ToLowerInvariant().Replace('-', '_');
     private static bool IsAllowedKey(string key) => DefaultTypes.ContainsKey(key);
-    private static bool IsPublicKey(string key) => key.StartsWith("site.") || key.StartsWith("social.") || key.StartsWith("contact.") || key.StartsWith("footer.") || key.StartsWith("seo.") || key is "auth.email_enabled" or "auth.google_enabled" or "auth.google_client_id" or "auth.facebook_enabled" or "auth.facebook_app_id" or "auth.auto_create_user" or "payment.default_provider" or "payment.currency" or "payment.stripe_enabled" or "payment.stripe_publishable_key" or "payment.paypal_enabled" or "payment.paypal_client_id" or "payment.paypal_mode" or "payment.manual_enabled" or "payment.manual_instructions";
+    private static bool IsPublicKey(string key) => key.StartsWith("site.") || key.StartsWith("social.") || key.StartsWith("contact.") || key.StartsWith("footer.") || key.StartsWith("seo.") || key.StartsWith("localization.") || key is "auth.email_enabled" or "auth.google_enabled" or "auth.google_client_id" or "auth.facebook_enabled" or "auth.facebook_app_id" or "auth.auto_create_user" or "payment.default_provider" or "payment.currency" or "payment.stripe_enabled" or "payment.stripe_publishable_key" or "payment.paypal_enabled" or "payment.paypal_client_id" or "payment.paypal_mode" or "payment.manual_enabled" or "payment.manual_instructions";
     private static Dictionary<string, string> ToDictionary(IEnumerable<dynamic> rows) => rows.ToDictionary(x => (string)x.Key, x => (string)(x.Value ?? string.Empty));
     private static object ToResponse(IEnumerable<dynamic> rows) => new { settings = ToDictionary(rows), branding = ToBranding(rows) };
     private static object ToBranding(IEnumerable<dynamic> rows)
@@ -368,7 +372,9 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
             contactAddress = V("contact.address"),
             footerText = V("footer.text"),
             seoTitle = V("seo.title"),
-            seoDescription = V("seo.description")
+            seoDescription = V("seo.description"),
+            defaultLanguage = V("localization.default_language"),
+            showLanguageSelector = !string.Equals(V("localization.show_language_selector"), "false", StringComparison.OrdinalIgnoreCase)
         };
     }
 }

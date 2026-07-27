@@ -21,6 +21,14 @@ const fieldGroups: Array<{ title: string; description: string; fields: SettingFi
     ],
   },
   {
+    title: 'Localization',
+    description: 'Set the customer website default language and control whether customers can change it.',
+    fields: [
+      { key: 'localization.default_language', label: 'Default Language', control: 'select', options: ['en', 'vi', 'es', 'ja', 'zh'] },
+      { key: 'localization.show_language_selector', label: 'Show Language Selector to Customers', control: 'checkbox' },
+    ],
+  },
+  {
     title: 'Social Links',
     description: 'Links used by customer footer/header social icons.',
     fields: [

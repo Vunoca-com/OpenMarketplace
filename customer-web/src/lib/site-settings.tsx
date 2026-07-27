@@ -19,6 +19,8 @@ export type SiteBranding = {
   footerText: string;
   seoTitle: string;
   seoDescription: string;
+  defaultLanguage: 'en' | 'vi' | 'es' | 'ja' | 'zh';
+  showLanguageSelector: boolean;
 };
 
 const DEFAULT_BRANDING: SiteBranding = {
@@ -36,6 +38,8 @@ const DEFAULT_BRANDING: SiteBranding = {
   footerText: 'Modern local classifieds for buying, selling and discovering trusted listings nearby.',
   seoTitle: 'OpenMarketplace',
   seoDescription: 'Local classifieds marketplace',
+  defaultLanguage: 'en',
+  showLanguageSelector: true,
 };
 
 const SiteSettingsContext = createContext<SiteBranding>(DEFAULT_BRANDING);
@@ -49,6 +53,9 @@ function normalizeBranding(data: any): SiteBranding {
     const raw = fromBranding ?? fromSettings ?? fallback;
     return typeof raw === 'string' ? raw.trim() : String(raw ?? '').trim();
   };
+  const defaultLanguageRaw = value('defaultLanguage', 'localization.default_language', DEFAULT_BRANDING.defaultLanguage);
+  const defaultLanguage = defaultLanguageRaw === 'vi' || defaultLanguageRaw === 'es' || defaultLanguageRaw === 'ja' || defaultLanguageRaw === 'zh' ? defaultLanguageRaw : 'en';
+  const showLanguageSelectorRaw = value('showLanguageSelector', 'localization.show_language_selector', String(DEFAULT_BRANDING.showLanguageSelector));
   return {
     siteName: value('siteName', 'site.name', DEFAULT_BRANDING.siteName),
     logoUrl: value('logoUrl', 'site.logo_url', DEFAULT_BRANDING.logoUrl),
@@ -64,6 +71,8 @@ function normalizeBranding(data: any): SiteBranding {
     footerText: value('footerText', 'footer.text', DEFAULT_BRANDING.footerText),
     seoTitle: value('seoTitle', 'seo.title', DEFAULT_BRANDING.seoTitle),
     seoDescription: value('seoDescription', 'seo.description', DEFAULT_BRANDING.seoDescription),
+    defaultLanguage,
+    showLanguageSelector: showLanguageSelectorRaw.toLowerCase() !== 'false',
   };
 }
 

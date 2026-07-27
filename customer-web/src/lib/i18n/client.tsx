@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { en, vi, es, ja, zh, type Dictionary, type Lang } from '@/i18n';
 export type { Lang } from '@/i18n';
 import { getCategoryLabelKey } from '@/constants/categories';
+import { useSiteSettings } from '@/lib/site-settings';
 
 const dictionaries: Record<Lang, Dictionary> = { en, vi, es, ja, zh };
 const STORAGE_KEY = 'om-language';
@@ -43,19 +44,26 @@ export function getPaymentProviderLabel(value?: string | null, lang: Lang = 'en'
   return key ? (dictionary[key] ?? dictionaries.en[key] ?? value ?? '') : (value ?? '');
 }
 export function useI18n() {
+  const siteSettings = useSiteSettings();
   const [lang, setLangState] = useState<Lang>('en');
 
   useEffect(() => {
-    const stored = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
-    setLangState(normalizeLang(stored));
-    const sync = () => setLangState(normalizeLang(localStorage.getItem(STORAGE_KEY)));
-    window.addEventListener('storage', sync);
-    window.addEventListener('om-language-changed', sync);
-    return () => {
-      window.removeEventListener('storage', sync);
-      window.removeEventListener('om-language-changed', sync);
+    const applyLanguage = () => {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+      const next = siteSettings.showLanguageSelector && stored
+        ? normalizeLang(stored)
+        : normalizeLang(siteSettings.defaultLanguage);
+      setLangState(next);
+      document.documentElement.lang = next;
     };
-  }, []);
+    applyLanguage();
+    window.addEventListener('storage', applyLanguage);
+    window.addEventListener('om-language-changed', applyLanguage);
+    return () => {
+      window.removeEventListener('storage', applyLanguage);
+      window.removeEventListener('om-language-changed', applyLanguage);
+    };
+  }, [siteSettings.defaultLanguage, siteSettings.showLanguageSelector]);
 
   const api = useMemo(() => {
     const dictionary = dictionaries[lang];
@@ -66,13 +74,14 @@ export function useI18n() {
       packageLabel: (value?: string | null) => getPackageLabel(value, lang),
       paymentProviderLabel: (value?: string | null) => getPaymentProviderLabel(value, lang),
       setLang: (next: Lang) => {
+        if (!siteSettings.showLanguageSelector) return;
         localStorage.setItem(STORAGE_KEY, next);
         document.documentElement.lang = next;
         setLangState(next);
         window.dispatchEvent(new Event('om-language-changed'));
       },
     };
-  }, [lang]);
+  }, [lang, siteSettings.showLanguageSelector]);
 
   return api;
 }

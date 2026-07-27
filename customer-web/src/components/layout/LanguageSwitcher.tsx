@@ -1,6 +1,7 @@
 'use client';
 
 import { useI18n, type Lang } from '@/lib/i18n/client';
+import { useSiteSettings } from '@/lib/site-settings';
 
 const languageOptions: Array<{ value: Lang; label: string; short: string }> = [
   { value: 'en', label: 'English', short: 'EN' },
@@ -12,6 +13,9 @@ const languageOptions: Array<{ value: Lang; label: string; short: string }> = [
 
 export function LanguageSwitcher() {
   const { lang, setLang, t } = useI18n();
+  const { showLanguageSelector } = useSiteSettings();
+
+  if (!showLanguageSelector) return null;
 
   return (
     <label className="language-select-wrap" title={t('langLabel')} aria-label={t('langLabel')}>
