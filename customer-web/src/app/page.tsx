@@ -8,6 +8,7 @@ import { RightRail } from '@/components/home/RightRail';
 import { AdvertisementCarousel } from '@/components/ads/AdvertisementCarousel';
 import { ProgressiveListingResults } from '@/components/listings/ProgressiveListingResults';
 import { marketplaceApi, type CategoryDto, type HomeFeed, type ListingDto } from '@/lib/api/apiClient';
+import { useSiteSettings } from '@/lib/site-settings';
 
 const fallbackCategories: CategoryDto[] = [
   { id: 'vehicles', name: 'Vehicles', slug: 'vehicles', count: 12540 },
@@ -24,6 +25,7 @@ const fallbackListings: ListingDto[] = [];
 const emptyFeed: HomeFeed = { listings: [], featuredListings: [], recentListings: [], categories: [], external: null };
 
 export default function HomePage() {
+  const site = useSiteSettings();
   const [feed, setFeed] = useState<HomeFeed>(emptyFeed);
 
   useEffect(() => {
@@ -63,9 +65,9 @@ export default function HomePage() {
       );
     };
 
-    loadNearby();
+    if (site.showNearby) loadNearby(); else void loadNewest();
     return () => { cancelled = true; };
-  }, []);
+  }, [site.showNearby]);
 
   const categories = feed.categories?.length ? feed.categories : fallbackCategories;
   const allListings = [...(feed.featuredListings ?? []), ...(feed.recentListings ?? []), ...(feed.listings ?? [])];
@@ -75,21 +77,21 @@ export default function HomePage() {
   const externalItems = feed.external?.items ?? [];
 
   return (
-    <main className="market-home shell-wide">
-      <CustomerAccountSidebar categories={categories} />
+    <main className={`market-home shell-wide layout-${site.layoutStyle}`}>
+      {site.showCategories && <CustomerAccountSidebar categories={categories} />}
       <section className="main-feed">
-        <AdvertisementCarousel placement="HOME_HERO" variant="hero" />
-        {featured.length > 0 && <FeaturedListings items={featured} />}
-        <FeedToolbar categories={categories} />
-        <ProgressiveListingResults
+        {site.showHero && <AdvertisementCarousel placement="HOME_HERO" variant="hero" />}
+        {site.showFeatured && featured.length > 0 && <FeaturedListings items={featured} />}
+        {site.showCategories && <FeedToolbar categories={categories} />}
+        {site.showNewest && <ProgressiveListingResults
           localItems={rows}
           externalItems={externalItems}
           initialCount={20}
           increment={20}
-        />
-        <AdvertisementCarousel placement="HOME_FEED" variant="inline" />
+        />}
+        {site.showSponsored && <AdvertisementCarousel placement="HOME_FEED" variant="inline" />}
       </section>
-      <RightRail categories={categories} promoted={listings[1] ?? listings[0]} />
+      {site.showRightRail && <RightRail categories={categories} promoted={listings[1] ?? listings[0]} />}
     </main>
   );
 }

@@ -102,6 +102,15 @@ public sealed class AdminController(AppDbContext db) : ControllerBase
             listing.PackageEndsAt = request.PackageEndsAt ?? listing.PackageStartsAt.Value.AddDays(package.DurationDays);
             listing.ExpiresAt = request.ExpiresAt ?? listing.PackageEndsAt;
             listing.IsFeatured = package.Code.Contains("PREMIUM", StringComparison.OrdinalIgnoreCase) || package.Code.Contains("FEATURE", StringComparison.OrdinalIgnoreCase);
+
+            // A package assigned by an administrator is an explicit override, not a customer checkout.
+            // Activate it immediately and publish the listing unless the request supplied another status.
+            if (string.IsNullOrWhiteSpace(request.Status))
+            {
+                listing.Status = "Published";
+                listing.ModerationStatus = "Approved";
+                listing.PublishedAt ??= DateTimeOffset.UtcNow;
+            }
         }
         else
         {

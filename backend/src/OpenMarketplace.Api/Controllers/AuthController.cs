@@ -124,8 +124,14 @@ public sealed class AuthController(AppDbContext db, IConfiguration config, IHttp
         if (string.IsNullOrWhiteSpace(clientId)) return OAuthFailure("Google Client ID is not configured.", returnUrl);
         var callback = BuildCallbackUrl("google");
         var state = ProtectOAuthState("google", returnUrl);
+        var googleScopes = "openid profile email";
         var url = "https://accounts.google.com/o/oauth2/v2/auth" +
-                  $"?client_id={Uri.EscapeDataString(clientId)}&redirect_uri={Uri.EscapeDataString(callback)}&response_type=code&state={Uri.EscapeDataString(state)}&prompt=select_account";
+                  $"?client_id={Uri.EscapeDataString(clientId.Trim())}" +
+                  $"&redirect_uri={Uri.EscapeDataString(callback)}" +
+                  "&response_type=code" +
+                  $"&scope={Uri.EscapeDataString(googleScopes)}" +
+                  $"&state={Uri.EscapeDataString(state)}" +
+                  "&prompt=select_account";
         return Redirect(url);
     }
 

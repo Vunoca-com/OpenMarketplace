@@ -13,6 +13,7 @@ export const adminRoutes: Record<AdminTab, string> = {
   reports: '/reports',
   settings: '/settings',
   siteSettings: '/site-settings',
+  customerLayout: '/customer-layout',
   externalProviders: '/external-providers',
   blockedWords: '/blocked-words',
   localities: '/localities',
@@ -50,6 +51,7 @@ export function getTabFromPath(pathname: string): AdminTab {
   if (normalized.startsWith('/ads')) return 'banners';
   if (normalized.startsWith('/payments')) return 'payments';
   if (normalized.startsWith('/reports')) return 'reports';
+  if (normalized.startsWith('/customer-layout')) return 'customerLayout';
   if (normalized.startsWith('/site-settings')) return 'siteSettings';
   if (normalized.startsWith('/external-providers')) return 'externalProviders';
   if (normalized.startsWith('/blocked-words')) return 'blockedWords';

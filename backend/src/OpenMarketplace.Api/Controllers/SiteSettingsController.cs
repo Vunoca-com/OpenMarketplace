@@ -18,6 +18,29 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
         ["site.favicon_url"] = "ImageUrl",
         ["site.primary_color"] = "Color",
         ["site.secondary_color"] = "Color",
+        ["site.background_color"] = "Color",
+        ["site.background_image_url"] = "ImageUrl",
+        ["site.background_size"] = "String",
+        ["site.background_position"] = "String",
+        ["site.background_repeat"] = "String",
+        ["layout.style"] = "String",
+        ["layout.theme"] = "String",
+        ["layout.density"] = "String",
+        ["layout.font"] = "String",
+        ["layout.radius"] = "String",
+        ["layout.card_style"] = "String",
+        ["layout.header_style"] = "String",
+        ["layout.footer_columns"] = "String",
+        ["layout.hero_style"] = "String",
+        ["layout.category_style"] = "String",
+        ["layout.listing_card_style"] = "String",
+        ["layout.show_hero"] = "Boolean",
+        ["layout.show_categories"] = "Boolean",
+        ["layout.show_featured"] = "Boolean",
+        ["layout.show_newest"] = "Boolean",
+        ["layout.show_nearby"] = "Boolean",
+        ["layout.show_sponsored"] = "Boolean",
+        ["layout.show_right_rail"] = "Boolean",
         ["social.facebook_url"] = "Url",
         ["social.youtube_url"] = "Url",
         ["social.instagram_url"] = "Url",
@@ -110,7 +133,11 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
     {
         await EnsureDefaultsAsync(ct);
         var rows = await db.AppSettings.AsNoTracking()
-            .Where(x => x.IsPublic && !x.IsDeleted && x.Key.StartsWith("site.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("social.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("contact.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("footer.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("seo.") || x.IsPublic && !x.IsDeleted && x.Key.StartsWith("localization."))
+            .Where(x => x.IsPublic && !x.IsDeleted && (
+                x.Key.StartsWith("site.") || x.Key.StartsWith("layout.") ||
+                x.Key.StartsWith("social.") || x.Key.StartsWith("contact.") ||
+                x.Key.StartsWith("footer.") || x.Key.StartsWith("seo.") ||
+                x.Key.StartsWith("localization.")))
             .OrderBy(x => x.Key)
             .Select(x => new { x.Key, x.Value, x.ValueType })
             .ToListAsync(ct);
@@ -124,7 +151,7 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
     {
         await EnsureDefaultsAsync(ct);
         var entities = await db.AppSettings.AsNoTracking()
-            .Where(x => !x.IsDeleted && (x.Key.StartsWith("site.") || x.Key.StartsWith("social.") || x.Key.StartsWith("contact.") || x.Key.StartsWith("footer.") || x.Key.StartsWith("seo.") || x.Key.StartsWith("moderation.") || x.Key.StartsWith("auth.") || x.Key.StartsWith("payment.") || x.Key.StartsWith("email.") || x.Key.StartsWith("sms.") || x.Key.StartsWith("template.") || x.Key.StartsWith("external.") || x.Key.StartsWith("localization.")))
+            .Where(x => !x.IsDeleted && (x.Key.StartsWith("site.") || x.Key.StartsWith("layout.") || x.Key.StartsWith("social.") || x.Key.StartsWith("contact.") || x.Key.StartsWith("footer.") || x.Key.StartsWith("seo.") || x.Key.StartsWith("moderation.") || x.Key.StartsWith("auth.") || x.Key.StartsWith("payment.") || x.Key.StartsWith("email.") || x.Key.StartsWith("sms.") || x.Key.StartsWith("template.") || x.Key.StartsWith("external.") || x.Key.StartsWith("localization.")))
             .OrderBy(x => x.Key)
             .ToListAsync(ct);
 
@@ -252,6 +279,29 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
         ("site.favicon_url", "/site/favicon-openmarketplace.svg", "ImageUrl"),
         ("site.primary_color", "#2563eb", "Color"),
         ("site.secondary_color", "#f59e0b", "Color"),
+        ("site.background_color", "#f8fafc", "Color"),
+        ("site.background_image_url", "", "ImageUrl"),
+        ("site.background_size", "cover", "String"),
+        ("site.background_position", "center top", "String"),
+        ("site.background_repeat", "no-repeat", "String"),
+        ("layout.style", "modern", "String"),
+        ("layout.theme", "teal", "String"),
+        ("layout.density", "comfortable", "String"),
+        ("layout.font", "Inter", "String"),
+        ("layout.radius", "12", "String"),
+        ("layout.card_style", "shadow", "String"),
+        ("layout.header_style", "classic", "String"),
+        ("layout.footer_columns", "4", "String"),
+        ("layout.hero_style", "banner", "String"),
+        ("layout.category_style", "grid", "String"),
+        ("layout.listing_card_style", "modern", "String"),
+        ("layout.show_hero", "true", "Boolean"),
+        ("layout.show_categories", "true", "Boolean"),
+        ("layout.show_featured", "true", "Boolean"),
+        ("layout.show_newest", "true", "Boolean"),
+        ("layout.show_nearby", "true", "Boolean"),
+        ("layout.show_sponsored", "true", "Boolean"),
+        ("layout.show_right_rail", "true", "Boolean"),
         ("social.facebook_url", "https://facebook.com/", "Url"),
         ("social.youtube_url", "", "Url"),
         ("social.instagram_url", "", "Url"),
@@ -350,7 +400,7 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
 
     private static string NormalizeKey(string key) => (key ?? string.Empty).Trim().ToLowerInvariant().Replace('-', '_');
     private static bool IsAllowedKey(string key) => DefaultTypes.ContainsKey(key);
-    private static bool IsPublicKey(string key) => key.StartsWith("site.") || key.StartsWith("social.") || key.StartsWith("contact.") || key.StartsWith("footer.") || key.StartsWith("seo.") || key.StartsWith("localization.") || key is "auth.email_enabled" or "auth.google_enabled" or "auth.google_client_id" or "auth.facebook_enabled" or "auth.facebook_app_id" or "auth.auto_create_user" or "payment.default_provider" or "payment.currency" or "payment.stripe_enabled" or "payment.stripe_publishable_key" or "payment.paypal_enabled" or "payment.paypal_client_id" or "payment.paypal_mode" or "payment.manual_enabled" or "payment.manual_instructions";
+    private static bool IsPublicKey(string key) => key.StartsWith("site.") || key.StartsWith("layout.") || key.StartsWith("social.") || key.StartsWith("contact.") || key.StartsWith("footer.") || key.StartsWith("seo.") || key.StartsWith("localization.") || key is "auth.email_enabled" or "auth.google_enabled" or "auth.google_client_id" or "auth.facebook_enabled" or "auth.facebook_app_id" or "auth.auto_create_user" or "payment.default_provider" or "payment.currency" or "payment.stripe_enabled" or "payment.stripe_publishable_key" or "payment.paypal_enabled" or "payment.paypal_client_id" or "payment.paypal_mode" or "payment.manual_enabled" or "payment.manual_instructions";
     private static Dictionary<string, string> ToDictionary(IEnumerable<dynamic> rows) => rows.ToDictionary(x => (string)x.Key, x => (string)(x.Value ?? string.Empty));
     private static object ToResponse(IEnumerable<dynamic> rows) => new { settings = ToDictionary(rows), branding = ToBranding(rows) };
     private static object ToBranding(IEnumerable<dynamic> rows)
@@ -364,6 +414,29 @@ public sealed class SiteSettingsController(AppDbContext db) : ControllerBase
             faviconUrl = V("site.favicon_url"),
             primaryColor = V("site.primary_color"),
             secondaryColor = V("site.secondary_color"),
+            backgroundColor = V("site.background_color"),
+            backgroundImageUrl = V("site.background_image_url"),
+            backgroundSize = V("site.background_size"),
+            backgroundPosition = V("site.background_position"),
+            backgroundRepeat = V("site.background_repeat"),
+            layoutStyle = V("layout.style"),
+            theme = V("layout.theme"),
+            density = V("layout.density"),
+            font = V("layout.font"),
+            radius = V("layout.radius"),
+            cardStyle = V("layout.card_style"),
+            headerStyle = V("layout.header_style"),
+            footerColumns = V("layout.footer_columns"),
+            heroStyle = V("layout.hero_style"),
+            categoryStyle = V("layout.category_style"),
+            listingCardStyle = V("layout.listing_card_style"),
+            showHero = !string.Equals(V("layout.show_hero"), "false", StringComparison.OrdinalIgnoreCase),
+            showCategories = !string.Equals(V("layout.show_categories"), "false", StringComparison.OrdinalIgnoreCase),
+            showFeatured = !string.Equals(V("layout.show_featured"), "false", StringComparison.OrdinalIgnoreCase),
+            showNewest = !string.Equals(V("layout.show_newest"), "false", StringComparison.OrdinalIgnoreCase),
+            showNearby = !string.Equals(V("layout.show_nearby"), "false", StringComparison.OrdinalIgnoreCase),
+            showSponsored = !string.Equals(V("layout.show_sponsored"), "false", StringComparison.OrdinalIgnoreCase),
+            showRightRail = !string.Equals(V("layout.show_right_rail"), "false", StringComparison.OrdinalIgnoreCase),
             facebookUrl = V("social.facebook_url"),
             youtubeUrl = V("social.youtube_url"),
             instagramUrl = V("social.instagram_url"),

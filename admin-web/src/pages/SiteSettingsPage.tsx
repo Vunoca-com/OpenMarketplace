@@ -10,45 +10,6 @@ type SettingField = { key: string; label: string; type?: string; upload?: boolea
 
 const fieldGroups: Array<{ title: string; description: string; fields: SettingField[] }> = [
   {
-    title: 'Branding',
-    description: 'Logo, browser icon and customer website colors.',
-    fields: [
-      { key: 'site.name', label: 'Website Name', placeholder: 'OpenMarketplace' },
-      { key: 'site.logo_url', label: 'Homepage Logo', upload: true, placeholder: '/site/logo-openmarketplace.svg' },
-      { key: 'site.favicon_url', label: 'Browser / Taskbar Logo', upload: true, placeholder: '/site/favicon-openmarketplace.svg' },
-      { key: 'site.primary_color', label: 'Primary Color', type: 'color' },
-      { key: 'site.secondary_color', label: 'Secondary Color', type: 'color' },
-    ],
-  },
-  {
-    title: 'Localization',
-    description: 'Set the customer website default language and control whether customers can change it.',
-    fields: [
-      { key: 'localization.default_language', label: 'Default Language', control: 'select', options: ['en', 'vi', 'es', 'ja', 'zh'] },
-      { key: 'localization.show_language_selector', label: 'Show Language Selector to Customers', control: 'checkbox' },
-    ],
-  },
-  {
-    title: 'Social Links',
-    description: 'Links used by customer footer/header social icons.',
-    fields: [
-      { key: 'social.facebook_url', label: 'Facebook Link', placeholder: 'https://facebook.com/your-page' },
-      { key: 'social.youtube_url', label: 'YouTube Link', placeholder: 'https://youtube.com/@your-channel' },
-      { key: 'social.instagram_url', label: 'Instagram Link', placeholder: 'https://instagram.com/your-page' },
-    ],
-  },
-  {
-    title: 'Contact & Footer',
-    description: 'Public contact information shown to customer users.',
-    fields: [
-      { key: 'contact.email', label: 'Contact Email', placeholder: 'support@example.com' },
-      { key: 'contact.phone', label: 'Contact Phone', placeholder: '(408) 555-0100' },
-      { key: 'contact.address', label: 'Address', placeholder: 'Santa Clara, CA' },
-      { key: 'footer.text', label: 'Footer Text', placeholder: '© OpenMarketplace. All rights reserved.' },
-    ],
-  },
-
-  {
     title: 'Moderation',
     description: 'OpenAI moderation and review thresholds for listing text and images.',
     fields: [
@@ -143,14 +104,6 @@ const fieldGroups: Array<{ title: string; description: string; fields: SettingFi
       { key: 'template.sms_payment', label: 'Payment Confirmation SMS', control: 'textarea', span2: true, placeholder: 'Payment {{amount}} received for {{orderNumber}}.' },
     ],
   },
-  {
-    title: 'SEO',
-    description: 'Default title and description for customer pages.',
-    fields: [
-      { key: 'seo.title', label: 'SEO Title', placeholder: 'OpenMarketplace - Local Classifieds' },
-      { key: 'seo.description', label: 'SEO Description', placeholder: 'Buy, sell and discover local listings near you.' },
-    ],
-  },
 ];
 
 function pickSettings(data: any): SiteSettingForm {
@@ -204,24 +157,11 @@ export function SiteSettingsPage() {
     <>
       <PageHero
         eyebrow="SITE SETTINGS"
-        title="Site Settings"
-        description="Configure customer website name, logo, colors, social links, contact info and SEO from the database."
+        title="System Settings"
+        description="Configure moderation, authentication, payment, email, SMS and integration settings."
         actions={<AdminButton variant="primary" onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save Settings'}</AdminButton>}
       />
 
-      <section className="site-settings-preview admin-card">
-        <div className="site-preview-brand" style={{ ['--preview-primary' as any]: values['site.primary_color'] || '#2563eb' }}>
-          {values['site.logo_url'] ? <img src={resolveUrl(values['site.logo_url'])} alt="Website logo preview" /> : <span className="site-preview-logo">OM</span>}
-          <div>
-            <strong>{values['site.name'] || 'OpenMarketplace'}</strong>
-            <small>{values['seo.title'] || 'Customer website preview'}</small>
-          </div>
-        </div>
-        <div className="site-preview-colors">
-          <span style={{ background: values['site.primary_color'] || '#2563eb' }} />
-          <span style={{ background: values['site.secondary_color'] || '#f59e0b' }} />
-        </div>
-      </section>
 
       {fieldGroups.map((group) => {
         const providerGroups = group.title === 'Authentication Providers'
