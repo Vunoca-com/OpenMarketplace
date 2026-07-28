@@ -7,9 +7,11 @@ import { saveSession } from '@/lib/api/session';
 import { appConfig } from '@/lib/config';
 import { useI18n } from '@/lib/i18n/client';
 import { analytics } from '@/lib/analytics';
+import { useSiteSettings } from '@/lib/site-settings';
 
 export default function Page() {
   const { t } = useI18n();
+  const site = useSiteSettings();
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
   const [returnUrl, setReturnUrl] = useState('/profile');
@@ -40,7 +42,7 @@ export default function Page() {
   return (
     <main className="auth-page-v2">
       <section className="auth-panel-v2">
-        <div className="auth-brand-v2"><span><Icon name="logo" size={24}/></span><strong>{t('appName')}</strong></div>
+        <div className="auth-brand-v2"><span><Icon name="logo" size={24}/></span><strong>{site.siteName}</strong></div>
         <div className="auth-visual-v2">
           <div className="auth-phone-card"><b>$950</b><span>iPhone 15 Pro Max</span></div>
           <div className="auth-house-card"><b>{t('verified')}</b><span>{t('verifiedSellers')}</span></div>

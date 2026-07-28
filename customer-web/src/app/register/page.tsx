@@ -7,9 +7,11 @@ import { saveSession } from '@/lib/api/session';
 import { appConfig } from '@/lib/config';
 import { useI18n } from '@/lib/i18n/client';
 import { analytics } from '@/lib/analytics';
+import { useSiteSettings } from '@/lib/site-settings';
 
 export default function Page() {
   const { t } = useI18n();
+  const site = useSiteSettings();
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
   const [password, setPassword] = useState('');
@@ -63,7 +65,7 @@ export default function Page() {
   return (
     <main className="auth-page-v2 register-page-v2">
       <section className="auth-panel-v2 register-panel-v2">
-        <div className="auth-brand-v2"><span><Icon name="logo" size={24}/></span><strong>{t('appName')}</strong></div>
+        <div className="auth-brand-v2"><span><Icon name="logo" size={24}/></span><strong>{site.siteName}</strong></div>
         <div className="auth-visual-v2"><div className="auth-post-card"><b>{t('postListing')}</b><span>{t('sellFasterText')}</span></div><div className="auth-badge-card"><b>4.9★</b><span>{t('sellerProfileTitle')}</span></div></div>
         <h1>{t('registerTitle')}</h1>
         <p>{t('registerSubtitle')}</p>

@@ -56,7 +56,7 @@ async function getPublicSiteSettings(): Promise<PublicSiteSettings | null> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSiteSettings();
-  const title = settings?.seoTitle || settings?.siteName || DEFAULT_TITLE;
+  const title = settings?.siteName || DEFAULT_TITLE;
   const description = settings?.seoDescription || DEFAULT_DESCRIPTION;
   const icon = settings?.faviconUrl || settings?.logoUrl;
 
@@ -87,11 +87,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getPublicSiteSettings();
   return (
     <html lang="en">
       <body>
-        <SiteSettingsProvider>
+        <SiteSettingsProvider initialBranding={settings ? {
+          siteName: settings.siteName,
+          seoTitle: settings.seoTitle,
+          seoDescription: settings.seoDescription,
+          faviconUrl: settings.faviconUrl,
+          logoUrl: settings.logoUrl,
+        } : undefined}>
           <SiteHeader />
           <main className="page-shell">{children}</main>
           <MobileBottomNav />

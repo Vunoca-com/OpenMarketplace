@@ -44,6 +44,8 @@ const DEFAULT_BRANDING: SiteBranding = {
 
 const SiteSettingsContext = createContext<SiteBranding>(DEFAULT_BRANDING);
 
+const BRANDING_CACHE_KEY = 'customer.site-branding.v1';
+
 function normalizeBranding(data: any): SiteBranding {
   const branding = data?.branding ?? data?.data?.branding ?? data?.settings?.branding ?? {};
   const settings = data?.settings ?? data?.data?.settings ?? {};
@@ -76,16 +78,41 @@ function normalizeBranding(data: any): SiteBranding {
   };
 }
 
-function setFavicon(url?: string | null) {
-  const resolved = mediaUrl(url);
+function resolveFavicon(url?: string | null) {
+  return mediaUrl(url);
+}
+
+function ensureFavicon(resolved?: string | null) {
   if (!resolved || typeof document === 'undefined') return;
-  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-  if (!link) {
-    link = document.createElement('link');
-    link.rel = 'icon';
-    document.head.appendChild(link);
+
+  const iconLinks = Array.from(document.querySelectorAll<HTMLLinkElement>('link[rel="icon"], link[rel="shortcut icon"]'));
+  const link = iconLinks[0] ?? document.createElement('link');
+  link.rel = 'icon';
+  if (link.href !== resolved) link.href = resolved;
+  if (!link.parentNode) document.head.appendChild(link);
+
+  // Remove duplicate route-generated favicon links so Next navigation cannot
+  // temporarily replace the configured customer favicon.
+  for (const duplicate of iconLinks.slice(1)) duplicate.remove();
+}
+
+function readBrandingCache(): SiteBranding | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(BRANDING_CACHE_KEY);
+    return raw ? ({ ...DEFAULT_BRANDING, ...JSON.parse(raw) } as SiteBranding) : null;
+  } catch {
+    return null;
   }
-  link.href = resolved;
+}
+
+function writeBrandingCache(branding: SiteBranding) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(BRANDING_CACHE_KEY, JSON.stringify(branding));
+  } catch {
+    // Storage can be unavailable in private/restricted browser modes.
+  }
 }
 
 function applyCssVariables(branding: SiteBranding) {
@@ -99,30 +126,51 @@ function applyCssVariables(branding: SiteBranding) {
   if (branding.secondaryColor) document.documentElement.style.setProperty('--amber', branding.secondaryColor);
 }
 
-export function SiteSettingsProvider({ children }: { children: ReactNode }) {
-  const [branding, setBranding] = useState<SiteBranding>(DEFAULT_BRANDING);
+export function SiteSettingsProvider({ children, initialBranding }: { children: ReactNode; initialBranding?: Partial<SiteBranding> }) {
+  const initialValue = useMemo<SiteBranding>(() => ({ ...DEFAULT_BRANDING, ...initialBranding }), [initialBranding]);
+  const [branding, setBranding] = useState<SiteBranding>(initialValue);
 
   useEffect(() => {
     let cancelled = false;
+
+    // Reuse the branding during client-side navigation. A full browser refresh
+    // runs this provider again and refreshes the cache from Admin settings.
+    const cached = readBrandingCache();
+    if (cached) setBranding(cached);
+
     async function load() {
       try {
         const res = await fetch(`${appConfig.apiBaseUrl}/site-settings`, { cache: 'no-store' });
         const payload = await res.json().catch(() => null);
         if (!res.ok) throw new Error('Site settings request failed');
         const next = normalizeBranding(payload?.success && payload?.data ? payload.data : payload);
-        if (!cancelled) setBranding(next);
+        if (!cancelled) {
+          writeBrandingCache(next);
+          setBranding(next);
+        }
       } catch {
-        if (!cancelled) setBranding(DEFAULT_BRANDING);
+        // Keep the server-provided or cached branding instead of reverting to
+        // OpenMarketplace when the settings request is temporarily unavailable.
       }
     }
+
     load();
     return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
     applyCssVariables(branding);
-    setFavicon(branding.faviconUrl || branding.logoUrl);
-    if (branding.seoTitle || branding.siteName) document.title = branding.seoTitle || branding.siteName;
+
+    const stableTitle = branding.siteName || DEFAULT_BRANDING.siteName;
+    const stableFavicon = resolveFavicon(branding.faviconUrl || branding.logoUrl);
+
+    const applyStableHead = () => {
+      if (document.title !== stableTitle) document.title = stableTitle;
+      ensureFavicon(stableFavicon);
+    };
+
+    applyStableHead();
+
     const description = branding.seoDescription;
     if (description) {
       let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
@@ -133,6 +181,12 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
       }
       meta.content = description;
     }
+
+    // Next.js can update <head> when navigating between pages. Restore the
+    // cached website title/favicon immediately without calling the API again.
+    const observer = new MutationObserver(applyStableHead);
+    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
   }, [branding]);
 
   const value = useMemo(() => branding, [branding]);
