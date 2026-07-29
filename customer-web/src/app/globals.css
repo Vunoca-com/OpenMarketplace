@@ -1103,7 +1103,7 @@ body { background-image: var(--site-background-image, none); background-size: va
 
 
 /* Admin-managed customer styles and themes */
-html { font-family: var(--site-font, Inter), system-ui, sans-serif; }
+
 :root { --site-radius: 12px; }
 button, input, select, textarea, .listing-card, .admin-card { border-radius: var(--site-radius); }
 
@@ -1137,7 +1137,7 @@ html[data-layout-style="community"] .market-home { grid-template-columns:260px m
 html[data-layout-style="minimal"] .listing-card, html[data-layout-style="minimal"] .profile-card-mini { box-shadow:none !important; border:1px solid var(--border,#e5e7eb); }
 html[data-layout-style="real-estate"] .ad-carousel-card { min-height:360px; }
 html[data-layout-style="automotive"] { --site-background-color:#111827; --surface:#1f2937; --text:#f9fafb; }
-html[data-layout-style="luxury"] { --site-font:Georgia; --site-radius:2px; }
+html[data-layout-style="luxury"] { --site-radius:2px; }
 
 html[data-header-style="centered"] .site-header-inner { justify-content:center; flex-wrap:wrap; }
 html[data-header-style="commerce"] .site-header { border-bottom:3px solid var(--primary); }
@@ -1151,4 +1151,227 @@ html[data-footer-columns="4"] .footer-modern-grid { grid-template-columns:repeat
 @media (max-width: 900px) {
   html[data-layout-style] .market-home { grid-template-columns:1fr; }
   html[data-listing-card-style="horizontal"] .listing-card { grid-template-columns:1fr; }
+}
+
+/* Admin-managed customer theme -------------------------------------------------
+   This final layer intentionally overrides legacy hard-coded colors so every
+   customer page follows layout.theme without requiring each component to be
+   rewritten. Page layout presets remain reserved for the future builder. */
+html{
+  background:var(--site-background-color,var(--bg));
+}
+body{
+  background-color:var(--site-background-color,var(--bg))!important;
+  background-image:var(--site-background-image,none)!important;
+  background-size:var(--site-background-size,cover)!important;
+  background-position:var(--site-background-position,center top)!important;
+  background-repeat:var(--site-background-repeat,no-repeat)!important;
+  color:var(--text)!important;
+}
+
+/* Header and navigation */
+.app-header{background:var(--header-bg)!important;border-color:var(--line)!important;color:var(--text)!important}
+.global-search,.header-control,.auth-links a,.round-action,.logout-button,.language-select-wrap select,
+.mobile-bottom-nav,.user-menu-popover{background:var(--input-bg,var(--surface))!important;border-color:var(--line)!important;color:var(--text)!important}
+.global-search input,.global-search input::placeholder,input::placeholder,textarea::placeholder{color:var(--muted)!important}
+.global-search input,.header-control select,.language-select-wrap select{color:var(--text)!important}
+.post-listing,.auth-links .create-account,.primary-button,.auth-primary-v2,.seller-primary-action,
+.package-card-v2.active>span,.message-seller-card button{background:var(--brand-button-bg)!important;border-color:var(--primary)!important;color:#fff!important}
+.logo-pin,.footer-logo-modern span{background:var(--primary)!important;box-shadow:none!important}
+.logo-lockup,.section-head a,.rail-panel-head a,.view-all-cats,.seller-profile-link-modern,
+.auth-switch-v2 a,.auth-row-between a{color:var(--primary)!important}
+
+/* Shared surfaces */
+.profile-card-mini,.account-nav,.category-list-modern,.sell-faster-card,.rail-panel,.upgrade-modern,
+.listing-card,.category-browser-item,.promoted-slider-modern,.contact-seller-card-modern,
+.seller-identity-card,.seller-trust-card,.seller-safety-card,.seller-hero-modern,.seller-listings-panel,
+.seller-mini-panel,.public-profile-card-v3,.profile-form-v3,.phone-verification-card-v3,
+.notification-panel-v3,.empty-state-v3,.legal-card,.contact-card,.billing-card,.messages-shell,
+.auth-card-v2,.package-picker-v2,.package-card-v2,.checkout-summary-v2,.checkout-card-form-v2,
+.checkout-free-v2,.map-panel,.search-panel,.filter-panel,.listing-detail-card,.detail-panel,
+.left-menu-categories.category-browser.compact,.view-all-cats{
+  background:var(--surface)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+  box-shadow:var(--theme-shadow,var(--shadow-sm))!important;
+}
+
+/* Soft panels, controls and chips */
+.category-tabs-modern a,.feed-actions button,.feed-actions a,.carousel-nav,.seller-proof-grid span,
+.seller-verify-row span,.detail-stats-grid-v2 span,.message-seller-card textarea,
+.seller-profile-link-modern,.account-tabs-v3 button,.mark-read-v3,.avatar-upload-btn,
+.profile-form-v3 input,.profile-form-v3 select,.profile-form-v3 textarea,.auth-card-v2 input,
+.auth-card-v2 select,.auth-card-v2 textarea,.legal-page-shell input,.legal-page-shell textarea,
+.post-step-three-v2 input,.post-step-three-v2 select,.post-step-three-v2 textarea,
+.checkout-card-form-v2 input,.checkout-card-form-v2 select,.filter-panel input,.filter-panel select,
+.search-panel input,.search-panel select,.quick-message-row button{
+  background:var(--input-bg,var(--surface))!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+.category-tabs-modern a.active,.account-tabs-v3 button.active{background:var(--primary)!important;border-color:var(--primary)!important;color:#fff!important}
+.account-nav a.active,.account-nav a:hover,.category-list-modern a:hover,
+.left-menu-categories.compact .category-browser-item:first-child,
+.left-menu-categories.compact .category-browser-item:hover{
+  background:var(--primary-soft)!important;color:var(--primary)!important
+}
+.category-browser-icon,.top-category-list a span,.category-list-modern a span,
+.category-browser.left-menu-categories .category-browser-item:hover{
+  background:var(--primary-soft)!important;color:var(--primary)!important;box-shadow:inset 0 0 0 1px var(--line)!important
+}
+
+/* Typography: neutralize legacy navy/gray values */
+.section-head h2,.listing-title-row h3,.listing-price,.profile-card-mini strong,
+.category-browser-copy strong,.promoted-slider-head h2,.contact-seller-top h3,
+.seller-profile-shell h1,.seller-profile-shell h2,.seller-profile-shell h3,
+.profile-grid-v3 h1,.profile-grid-v3 h2,.profile-grid-v3 h3,
+.auth-card-v2 h1,.auth-card-v2 h2,.legal-page-shell h1,.legal-page-shell h2,
+.package-card-v2 strong,.package-picker-head-v2 h3,.checkout-summary-v2 h3,
+.detail-stats-grid-v2 b{color:var(--text)!important}
+.listing-meta,.listing-location,.profile-card-mini span,.category-browser-copy small,
+.promoted-slider-head p,.contact-seller-top p,.seller-profile-shell p,.seller-profile-shell small,
+.profile-grid-v3 p,.profile-grid-v3 small,.auth-muted,.legal-page-shell p,
+.package-card-v2 p,.checkout-summary-v2 p,.rail-section-title{color:var(--muted)!important}
+
+/* Cards and gradients must remain readable in every palette */
+.listing-row.is-urgent,.listing-row.is-premium,.listing-featured.is-premium,
+.sell-faster-card,.promoted-slider-modern,.contact-seller-card-modern,.package-picker-v2,
+.checkout-summary-v2,.checkout-card-form-v2,.checkout-free-v2{
+  background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--primary-soft) 24%,var(--surface)))!important
+}
+.listing-card:hover,.category-browser-item:hover{border-color:var(--primary)!important}
+.package-card-v2.active{border-color:var(--primary)!important;background:color-mix(in srgb,var(--primary-soft) 35%,var(--surface))!important}
+.package-price-row-v2 b,.package-card-v2 b,.package-picker-head-v2 span,.checkout-summary-v2>span,
+.seller-eyebrow-small,.auth-eyebrow{color:var(--primary)!important}
+
+/* Footer follows the selected theme while retaining sufficient contrast. */
+.site-footer-modern{background:var(--footer-bg)!important;color:color-mix(in srgb,#fff 84%,var(--muted))!important}
+.site-footer-modern h4,.footer-logo-modern{color:#fff!important}
+.site-footer-modern a:not(.footer-logo-modern),.footer-brand-modern p,.footer-modern-bottom{color:rgba(255,255,255,.68)!important}
+.site-footer-modern .footer-socials-modern a{background:rgba(255,255,255,.09)!important;color:#fff!important}
+.footer-modern-bottom{border-color:rgba(255,255,255,.14)!important}
+
+/* Dark theme-specific fixes for media, dropdowns, dialogs and browser controls. */
+html[data-theme="dark"] .listing-image,
+html[data-theme="dark"] .generated-art{background-color:#222a35!important}
+html[data-theme="dark"] .listing-card img{filter:brightness(.9)}
+html[data-theme="dark"] select option{background:#171b22;color:#f3f4f6}
+html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.7)!important}
+html[data-theme="dark"] .form-error{background:#3a1720!important;border-color:#7f2635!important;color:#fecdd3!important}
+html[data-theme="dark"] .form-success{background:#123426!important;border-color:#216b4a!important;color:#bbf7d0!important}
+
+/* Admin density/font/radius settings */
+html[data-density="compact"]{--density-gap:10px}
+html[data-density="comfortable"]{--density-gap:16px}
+html[data-density="spacious"]{--density-gap:24px}
+html[data-density="compact"] .market-home{gap:14px;padding-top:14px}
+html[data-density="spacious"] .market-home{gap:28px;padding-top:28px}
+.listing-card,.rail-panel,.profile-card-mini,.account-nav,.category-list-modern,.auth-card-v2,
+.contact-card,.legal-card,.seller-mini-panel,.seller-identity-card,.seller-hero-modern,
+.profile-form-v3,.notification-panel-v3{border-radius:var(--site-radius,var(--radius-md))!important}
+
+/* Card style option from Admin */
+html[data-card-style="flat"] .listing-card,html[data-card-style="flat"] .rail-panel,
+html[data-card-style="flat"] .profile-card-mini,html[data-card-style="flat"] .category-list-modern{box-shadow:none!important}
+html[data-card-style="border"] .listing-card,html[data-card-style="border"] .rail-panel{box-shadow:none!important;border-width:1px!important}
+html[data-card-style="glass"] .listing-card,html[data-card-style="glass"] .rail-panel,
+html[data-card-style="glass"] .profile-card-mini{background:color-mix(in srgb,var(--surface) 82%,transparent)!important;backdrop-filter:blur(18px)}
+
+/* Homepage page-style presets -------------------------------------------------
+   Page Style is intentionally applied only to the homepage composition. Theme
+   remains global. Every preset below changes grid density, card orientation,
+   image ratio and side-rail behavior without replacing route components. */
+
+/* Modern: balanced three-column classifieds layout (system default). */
+.layout-modern{grid-template-columns:248px minmax(0,1fr) 292px}
+
+/* Marketplace: dense product wall, similar to a local buy/sell marketplace. */
+.layout-marketplace{grid-template-columns:220px minmax(0,1fr)!important;gap:16px!important}
+.layout-marketplace>.right-rail{display:none!important}
+.layout-marketplace .main-feed{display:flex;flex-direction:column;min-width:0}
+.layout-marketplace .feed-toolbar-modern{order:-2}
+.layout-marketplace .featured-section{order:-1}
+.layout-marketplace .listing-feed-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px!important}
+.layout-marketplace .listing-row{display:block!important;min-width:0;min-height:0!important;border-radius:12px!important;overflow:hidden}
+.layout-marketplace .listing-row .listing-image{height:164px!important;min-height:164px!important;margin:0!important;border-radius:0!important}
+.layout-marketplace .listing-row .listing-content{padding:12px!important}
+.layout-marketplace .listing-row .listing-description,.layout-marketplace .listing-row .listing-stats{display:none!important}
+.layout-marketplace .listing-row .listing-title-row h3{font-size:15px!important;line-height:1.25;min-height:38px}
+.layout-marketplace .listing-row .listing-price{font-size:17px!important}
+
+/* Ecommerce: full-width store catalogue with larger category/product grid. */
+.layout-ecommerce{display:block!important;max-width:1440px}
+.layout-ecommerce>.left-rail,.layout-ecommerce>.right-rail{display:none!important}
+.layout-ecommerce .main-feed{width:100%}
+.layout-ecommerce .feed-toolbar-modern{padding:10px 14px;height:auto;border:1px solid var(--line);border-radius:var(--site-radius);background:var(--surface)}
+.layout-ecommerce .listing-feed-list{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px!important}
+.layout-ecommerce .listing-row{display:block!important;min-height:0!important;overflow:hidden}
+.layout-ecommerce .listing-row .listing-image{height:190px!important;min-height:190px!important;margin:0!important;border-radius:0!important}
+.layout-ecommerce .listing-row .listing-content{padding:14px!important}
+.layout-ecommerce .listing-row .listing-description{display:none!important}
+.layout-ecommerce .listing-row .listing-stats{border-top:1px solid var(--line);padding-top:9px;margin-top:10px}
+
+/* Community: information-first portal with wider feed and compact activity rows. */
+.layout-community{grid-template-columns:260px minmax(0,1fr) 300px!important;gap:18px!important}
+.layout-community .main-feed{display:flex;flex-direction:column}
+.layout-community .feed-toolbar-modern{order:-3}
+.layout-community .featured-section{order:-2}
+.layout-community .listing-feed-list{gap:8px!important}
+.layout-community .listing-row{grid-template-columns:170px minmax(0,1fr)!important;min-height:142px!important}
+.layout-community .listing-row .listing-image{min-height:142px!important}
+.layout-community .listing-row .listing-content{padding:13px 16px!important}
+.layout-community .listing-row .listing-description{margin:5px 0!important;-webkit-line-clamp:1!important}
+
+/* Minimal: centered editorial layout, no side rails and almost no decoration. */
+.layout-minimal{display:block!important;max-width:1040px!important;padding-top:34px!important}
+.layout-minimal>.left-rail,.layout-minimal>.right-rail{display:none!important}
+.layout-minimal .main-feed{width:100%}
+.layout-minimal .listing-feed-list{gap:18px!important}
+.layout-minimal .listing-card,.layout-minimal .featured-carousel .listing-card,.layout-minimal .feed-toolbar-modern{box-shadow:none!important;border-radius:2px!important}
+.layout-minimal .listing-row{grid-template-columns:210px minmax(0,1fr)!important}
+.layout-minimal .section-head h2{font-weight:700!important;letter-spacing:-.02em!important}
+
+/* Real estate: large photography and two-column property catalogue. */
+.layout-real-estate{grid-template-columns:minmax(0,1fr) 300px!important;max-width:1460px!important;gap:24px!important}
+.layout-real-estate>.left-rail{display:none!important}
+.layout-real-estate .ad-carousel-card{min-height:380px!important}
+.layout-real-estate .listing-feed-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px!important}
+.layout-real-estate .listing-row{display:block!important;min-height:0!important;overflow:hidden}
+.layout-real-estate .listing-row .listing-image{height:245px!important;min-height:245px!important;margin:0!important;border-radius:0!important}
+.layout-real-estate .listing-row .listing-content{padding:16px!important}
+.layout-real-estate .listing-row .listing-title-row h3{font-size:19px!important}
+
+/* Automotive: wide inventory cards with large vehicle imagery and specs. */
+.layout-automotive{display:block!important;max-width:1380px!important}
+.layout-automotive>.left-rail,.layout-automotive>.right-rail{display:none!important}
+.layout-automotive .listing-feed-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px!important}
+.layout-automotive .listing-row{display:block!important;min-height:0!important;overflow:hidden;border-width:2px!important}
+.layout-automotive .listing-row .listing-image{height:215px!important;min-height:215px!important;margin:0!important;border-radius:0!important}
+.layout-automotive .listing-row .listing-content{padding:15px!important}
+.layout-automotive .listing-row .listing-description{display:none!important}
+.layout-automotive .listing-row .listing-stats{display:flex!important;border-top:1px solid var(--line);padding-top:10px}
+
+/* Luxury: spacious two-column gallery with restrained chrome. */
+.layout-luxury{display:block!important;max-width:1220px!important;padding-top:42px!important}
+.layout-luxury>.left-rail,.layout-luxury>.right-rail{display:none!important}
+.layout-luxury .featured-section{margin-bottom:36px}
+.layout-luxury .listing-feed-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px!important}
+.layout-luxury .listing-row{display:block!important;min-height:0!important;overflow:hidden;border-radius:2px!important;box-shadow:none!important}
+.layout-luxury .listing-row .listing-image{height:310px!important;min-height:310px!important;margin:0!important;border-radius:0!important}
+.layout-luxury .listing-row .listing-content{padding:20px 4px!important}
+.layout-luxury .listing-row .listing-description{display:none!important}
+.layout-luxury .listing-row .listing-title-row h3{font-size:20px!important;font-weight:650!important}
+
+@media(max-width:1180px){
+  .layout-marketplace .listing-feed-list,.layout-automotive .listing-feed-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .layout-ecommerce .listing-feed-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .layout-real-estate{display:block!important}
+  .layout-real-estate>.right-rail{display:none!important}
+}
+@media(max-width:820px){
+  .layout-marketplace,.layout-ecommerce,.layout-community,.layout-minimal,.layout-real-estate,.layout-automotive,.layout-luxury{display:block!important;padding:12px 12px 92px!important}
+  .layout-marketplace .listing-feed-list,.layout-ecommerce .listing-feed-list,.layout-real-estate .listing-feed-list,.layout-automotive .listing-feed-list,.layout-luxury .listing-feed-list{display:flex!important;flex-direction:column!important;gap:10px!important}
+  .layout-marketplace .listing-row,.layout-ecommerce .listing-row,.layout-real-estate .listing-row,.layout-automotive .listing-row,.layout-luxury .listing-row{display:grid!important;grid-template-columns:118px 1fr!important;min-height:122px!important;border-radius:14px!important}
+  .layout-marketplace .listing-row .listing-image,.layout-ecommerce .listing-row .listing-image,.layout-real-estate .listing-row .listing-image,.layout-automotive .listing-row .listing-image,.layout-luxury .listing-row .listing-image{height:auto!important;min-height:122px!important}
+  .layout-marketplace .listing-row .listing-content,.layout-ecommerce .listing-row .listing-content,.layout-real-estate .listing-row .listing-content,.layout-automotive .listing-row .listing-content,.layout-luxury .listing-row .listing-content{padding:10px!important}
 }

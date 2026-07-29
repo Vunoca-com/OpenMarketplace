@@ -876,3 +876,26 @@
 2026-07-28 12:29:17.206 -07:00 [INF] HTTP POST /api/v1/ads/019f6751-9589-76dd-a1a8-4c3bf2cfc076/impression responded 200 in 30.2130 ms
 2026-07-28 12:29:20.040 -07:00 [INF] HTTP OPTIONS /api/v1/ads/019f6751-9586-79ca-a9e4-063106266335/impression responded 204 in 0.1608 ms
 2026-07-28 12:29:20.052 -07:00 [INF] HTTP POST /api/v1/ads/019f6751-9586-79ca-a9e4-063106266335/impression responded 200 in 11.3405 ms
+2026-07-28 12:32:18.943 -07:00 [INF] HTTP OPTIONS /api/v1/ads/019f6751-956b-7a5e-b9d8-0ef3c1dcd66d/impression responded 204 in 2.7533 ms
+2026-07-28 12:32:18.943 -07:00 [INF] HTTP OPTIONS /api/v1/ads/019f6751-958a-7a15-a575-98aaa0e56c88/impression responded 204 in 2.7898 ms
+2026-07-28 12:32:18.943 -07:00 [INF] HTTP OPTIONS /api/v1/ads/019f6751-9588-7e1c-b138-098134567940/impression responded 204 in 2.7105 ms
+2026-07-28 12:32:19.054 -07:00 [INF] HTTP POST /api/v1/ads/019f6751-956b-7a5e-b9d8-0ef3c1dcd66d/impression responded 200 in 105.8603 ms
+2026-07-28 12:32:19.054 -07:00 [INF] HTTP POST /api/v1/ads/019f6751-958a-7a15-a575-98aaa0e56c88/impression responded 200 in 106.0970 ms
+2026-07-28 12:32:19.054 -07:00 [INF] HTTP POST /api/v1/ads/019f6751-9588-7e1c-b138-098134567940/impression responded 200 in 105.9792 ms
+2026-07-28 15:52:33.319 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 16.4462 ms
+2026-07-28 15:52:33.319 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 16.4384 ms
+2026-07-28 15:52:35.001 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 1566.3135 ms
+2026-07-28 15:52:35.031 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 22.8490 ms
+2026-07-28 15:53:00.535 -07:00 [WRN] As of ""2026-07-28T22:52:56.9376080+00:00"", the heartbeat has been running for ""00:00:01.0053864"" which is longer than ""00:00:01"". This could be caused by thread pool starvation.
+2026-07-28 15:53:49.613 -07:00 [WRN] As of ""2026-07-28T22:53:46.2760530+00:00"", the heartbeat has been running for ""00:00:01.2258062"" which is longer than ""00:00:01"". This could be caused by thread pool starvation.
+2026-07-28 15:53:55.101 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 10.0855 ms
+2026-07-28 15:53:55.094 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 18.5634 ms
+2026-07-28 15:53:56.299 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 1093.3781 ms
+2026-07-28 15:53:56.547 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 233.5101 ms
+2026-07-28 21:30:13.525 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 8.5661 ms
+2026-07-28 21:30:13.815 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 281.5778 ms
+2026-07-28 21:30:14.332 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 18.1538 ms
+2026-07-28 22:35:42.827 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 13.9543 ms
+2026-07-28 22:35:42.827 -07:00 [INF] HTTP OPTIONS /api/v1/admin/site-settings responded 204 in 13.6778 ms
+2026-07-28 22:51:52.236 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 1665.3534 ms
+2026-07-28 22:51:52.302 -07:00 [INF] HTTP GET /api/v1/admin/site-settings responded 200 in 62.1038 ms

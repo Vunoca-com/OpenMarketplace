@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { appConfig } from '@/lib/config';
 import { mediaUrl } from '@/lib/media/url';
 
@@ -90,13 +91,67 @@ const DEFAULT_BRANDING: SiteBranding = {
 
 const SiteSettingsContext = createContext<SiteBranding>(DEFAULT_BRANDING);
 
-const BRANDING_CACHE_KEY = 'customer.site-branding.v2';
+const BRANDING_CACHE_KEY = 'customer.site-branding.v8';
+
+function unwrapSettingValue(raw: any): string | undefined {
+  if (raw === null || raw === undefined) return undefined;
+  if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
+  if (typeof raw === 'object') {
+    const nested = raw.value ?? raw.Value ?? raw.settingValue ?? raw.SettingValue;
+    return nested === undefined || nested === null ? undefined : String(nested);
+  }
+  return undefined;
+}
+
+function normalizeSettingsMap(raw: any): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (Array.isArray(raw)) {
+    for (const item of raw) {
+      const key = item?.key ?? item?.Key;
+      const value = unwrapSettingValue(item);
+      if (key && value !== undefined) result[String(key)] = value;
+    }
+    return result;
+  }
+  if (raw && typeof raw === 'object') {
+    for (const [key, value] of Object.entries(raw)) {
+      const unwrapped = unwrapSettingValue(value);
+      if (unwrapped !== undefined) result[key] = unwrapped;
+    }
+  }
+  return result;
+}
+
+function normalizeLayoutStyle(raw: string) {
+  const value = (raw || DEFAULT_BRANDING.layoutStyle)
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+  const aliases: Record<string, string> = {
+    market: 'marketplace',
+    ecommerce: 'ecommerce',
+    'e-commerce': 'ecommerce',
+    communityportal: 'community',
+    'community-portal': 'community',
+    realestate: 'real-estate',
+    property: 'real-estate',
+    auto: 'automotive',
+    car: 'automotive',
+  };
+
+  const normalized = aliases[value] ?? value;
+  return ['modern', 'marketplace', 'ecommerce', 'community', 'minimal', 'real-estate', 'automotive', 'luxury'].includes(normalized)
+    ? normalized
+    : DEFAULT_BRANDING.layoutStyle;
+}
 
 function normalizeBranding(data: any): SiteBranding {
   const branding = data?.branding ?? data?.data?.branding ?? data?.settings?.branding ?? {};
-  const settings = data?.settings ?? data?.data?.settings ?? {};
+  const settings = normalizeSettingsMap(data?.settings ?? data?.data?.settings ?? data?.items ?? data?.data?.items ?? {});
   const value = (camel: keyof SiteBranding, key: string, fallback = '') => {
-    const fromBranding = branding?.[camel];
+    const fromBranding = unwrapSettingValue(branding?.[camel]);
     const fromSettings = settings?.[key];
     const raw = fromBranding ?? fromSettings ?? fallback;
     return typeof raw === 'string' ? raw.trim() : String(raw ?? '').trim();
@@ -126,7 +181,7 @@ function normalizeBranding(data: any): SiteBranding {
     seoDescription: value('seoDescription', 'seo.description', DEFAULT_BRANDING.seoDescription),
     defaultLanguage,
     showLanguageSelector: showLanguageSelectorRaw.toLowerCase() !== 'false',
-    layoutStyle: value('layoutStyle', 'layout.style', DEFAULT_BRANDING.layoutStyle),
+    layoutStyle: normalizeLayoutStyle(value('layoutStyle', 'layout.style', DEFAULT_BRANDING.layoutStyle)),
     theme: value('theme', 'layout.theme', DEFAULT_BRANDING.theme),
     density: value('density', 'layout.density', DEFAULT_BRANDING.density),
     font: value('font', 'layout.font', DEFAULT_BRANDING.font),
@@ -220,10 +275,20 @@ function applyCssVariables(branding: SiteBranding) {
   document.documentElement.style.setProperty('--secondary', palette.secondary);
   document.documentElement.style.setProperty('--secondary-soft', `${palette.secondary}24`);
   document.documentElement.style.setProperty('--amber', palette.secondary);
+  document.documentElement.style.setProperty('--bg', palette.background);
   document.documentElement.style.setProperty('--surface', palette.surface);
+  document.documentElement.style.setProperty('--surface-soft', theme === 'dark' ? '#1d232c' : palette.primarySoft);
   document.documentElement.style.setProperty('--text', palette.text);
   document.documentElement.style.setProperty('--muted', palette.muted);
+  document.documentElement.style.setProperty('--muted-2', theme === 'dark' ? '#7f8998' : palette.muted);
+  document.documentElement.style.setProperty('--line', palette.border);
+  document.documentElement.style.setProperty('--line-strong', theme === 'dark' ? '#3a4554' : palette.border);
   document.documentElement.style.setProperty('--border', palette.border);
+  document.documentElement.style.setProperty('--input-bg', theme === 'dark' ? '#131820' : palette.surface);
+  document.documentElement.style.setProperty('--header-bg', theme === 'dark' ? 'rgba(23,27,34,.96)' : 'color-mix(in srgb, var(--surface) 94%, transparent)');
+  document.documentElement.style.setProperty('--footer-bg', theme === 'dark' ? '#090c10' : palette.text);
+  document.documentElement.style.setProperty('--theme-shadow', theme === 'dark' ? '0 12px 32px rgba(0,0,0,.28)' : '0 12px 32px rgba(15,23,42,.08)');
+  document.documentElement.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
 
   // A custom background image/color remains an explicit Branding override.
   const hasCustomBackgroundImage = Boolean((branding.backgroundImageUrl || '').trim());
@@ -237,7 +302,6 @@ function applyCssVariables(branding: SiteBranding) {
   document.documentElement.style.setProperty('--site-background-size', branding.backgroundSize || DEFAULT_BRANDING.backgroundSize);
   document.documentElement.style.setProperty('--site-background-position', branding.backgroundPosition || DEFAULT_BRANDING.backgroundPosition);
   document.documentElement.style.setProperty('--site-background-repeat', branding.backgroundRepeat || DEFAULT_BRANDING.backgroundRepeat);
-  document.documentElement.style.setProperty('--site-font', branding.font || DEFAULT_BRANDING.font);
   document.documentElement.style.setProperty('--site-radius', `${parseInt(branding.radius || DEFAULT_BRANDING.radius, 10) || 12}px`);
   document.documentElement.dataset.layoutStyle = branding.layoutStyle || DEFAULT_BRANDING.layoutStyle;
   document.documentElement.dataset.theme = theme;
@@ -251,39 +315,54 @@ function applyCssVariables(branding: SiteBranding) {
 }
 
 export function SiteSettingsProvider({ children, initialBranding }: { children: ReactNode; initialBranding?: Partial<SiteBranding> }) {
+  const pathname = usePathname();
   const initialValue = useMemo<SiteBranding>(() => ({ ...DEFAULT_BRANDING, ...initialBranding }), [initialBranding]);
   const [branding, setBranding] = useState<SiteBranding>(initialValue);
+  const requestIdRef = useRef(0);
+  const mountedRef = useRef(false);
 
+  async function refreshBranding() {
+    const requestId = ++requestIdRef.current;
+    try {
+      const separator = appConfig.apiBaseUrl.includes('?') ? '&' : '?';
+      const res = await fetch(`${appConfig.apiBaseUrl}/site-settings${separator}_=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { Accept: 'application/json', 'Cache-Control': 'no-cache, no-store, must-revalidate', Pragma: 'no-cache' },
+      });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) throw new Error('Site settings request failed');
+      const root = payload?.success && payload?.data ? payload.data : payload;
+      const next = normalizeBranding(root);
+      if (requestId === requestIdRef.current) {
+        writeBrandingCache(next);
+        setBranding(next);
+      }
+    } catch {
+      // Keep the last valid settings when the API is temporarily unavailable.
+    }
+  }
+
+  // Homepage owns customer settings refresh. It calls the API only when:
+  // 1) no session cache exists, or
+  // 2) the browser was hard-refreshed while already on the homepage.
+  // Child-page refreshes and all client-side navigation use the existing cache.
   useEffect(() => {
-    let cancelled = false;
-
-    // Reuse the branding during client-side navigation. A full browser refresh
-    // runs this provider again and refreshes the cache from Admin settings.
     const cached = readBrandingCache();
     if (cached) setBranding(cached);
 
-    async function load() {
-      try {
-        const res = await fetch(`${appConfig.apiBaseUrl}/site-settings?_=${Date.now()}`, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
-        });
-        const payload = await res.json().catch(() => null);
-        if (!res.ok) throw new Error('Site settings request failed');
-        const next = normalizeBranding(payload?.success && payload?.data ? payload.data : payload);
-        if (!cancelled) {
-          writeBrandingCache(next);
-          setBranding(next);
-        }
-      } catch {
-        // Keep the server-provided or cached branding instead of reverting to
-        // OpenMarketplace when the settings request is temporarily unavailable.
-      }
+    const isFirstMount = !mountedRef.current;
+    mountedRef.current = true;
+
+    let isHomepageReload = false;
+    if (isFirstMount && pathname === '/') {
+      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+      isHomepageReload = navigation?.type === 'reload';
     }
 
-    load();
-    return () => { cancelled = true; };
-  }, []);
+    if (pathname === '/' && (!cached || isHomepageReload)) {
+      void refreshBranding();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     applyCssVariables(branding);
@@ -309,12 +388,17 @@ export function SiteSettingsProvider({ children, initialBranding }: { children: 
       meta.content = description;
     }
 
-    // Next.js can update <head> when navigating between pages. Restore the
-    // cached website title/favicon immediately without calling the API again.
-    const observer = new MutationObserver(applyStableHead);
-    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
-    return () => observer.disconnect();
   }, [branding]);
+
+  // Client-side navigation must not reload settings. Re-apply only the cached
+  // title/favicon after Next.js updates route metadata; this is synchronous and
+  // does not trigger a network request or a provider state update.
+  useEffect(() => {
+    const stableTitle = branding.siteName || DEFAULT_BRANDING.siteName;
+    const stableFavicon = resolveFavicon(branding.faviconUrl || branding.logoUrl);
+    document.title = stableTitle;
+    ensureFavicon(stableFavicon);
+  }, [pathname, branding.siteName, branding.faviconUrl, branding.logoUrl]);
 
   const value = useMemo(() => branding, [branding]);
   return <SiteSettingsContext.Provider value={value}>{children}</SiteSettingsContext.Provider>;
